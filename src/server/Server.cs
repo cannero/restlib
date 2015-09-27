@@ -9,7 +9,7 @@ namespace RestLib.Server
     {
         private readonly HttpListener listener = new HttpListener();
         private readonly Thread listenerThread;
-        private readonly ProducerConsumerQueue<HttpListenerContext> contextQueue;
+        private ProducerConsumerQueue<HttpListenerContext> contextQueue;
 
         //todo remove
         int timesCalled;
@@ -23,6 +23,7 @@ namespace RestLib.Server
         public Server()
         {
             listenerThread = new Thread(HandleRequest);
+            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(WriteOutput);
         }
 
         public void Start()
@@ -38,6 +39,7 @@ namespace RestLib.Server
             try
             {
                 listener.Stop();
+                contextQueue.Dispose();
             }
             catch(Exception ex)
             {
@@ -53,12 +55,14 @@ namespace RestLib.Server
                 try
                 {
                     HttpListenerContext context = listener.GetContext();
-                    WriteOutput(context);
+                    contextQueue.EnqueueTask(context);
+                    //WriteOutput(context);
                     
                     timesCalled++;
                     if(timesCalled > 5)
                     {
                         Stop();
+                        Console.WriteLine("server returning");
                         return;
                     }
                 }

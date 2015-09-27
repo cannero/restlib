@@ -26,9 +26,12 @@ namespace RestLib.Utils
         
         public void EnqueueTask(T task)
         {
-            lock(locker)
+            if(task != null)
             {
-                tasks.Enqueue(task);
+                lock(locker)
+                {
+                    tasks.Enqueue(task);
+                }
             }
             workHandle.Set();
         }
@@ -43,11 +46,13 @@ namespace RestLib.Utils
 
         void Work()
         {
-            int positionWorkHandle = 0;
-            int positionStopHandle = 1;
-            WaitHandle[] handles = new[] { workHandle, stopHandle };
-            
-            while (true)
+            const int positionWorkHandle = 0;
+            const int positionStopHandle = 1;
+            WaitHandle[] handles = new WaitHandle[2];
+            handles[positionWorkHandle] = workHandle;
+            handles[positionStopHandle] = stopHandle;
+
+            while (WaitHandle.WaitAny(handles) == positionWorkHandle)
             {
                 T task = null;
                 lock (locker)
@@ -66,6 +71,7 @@ namespace RestLib.Utils
                     workHandle.Reset();
                 }
             }
+            Console.WriteLine("PC returning");
         }
     }
 }
