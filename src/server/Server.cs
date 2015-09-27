@@ -1,13 +1,15 @@
 using System;
 using System.Net;
 using System.Threading;
+using RestLib.Utils;
 
-namespace RestLib
+namespace RestLib.Server
 {
     public class Server
     {
         private readonly HttpListener listener = new HttpListener();
         private readonly Thread listenerThread;
+        private readonly ProducerConsumerQueue<HttpListenerContext> contextQueue;
 
         //todo remove
         int timesCalled;
