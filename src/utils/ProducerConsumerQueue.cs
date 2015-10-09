@@ -8,20 +8,36 @@ namespace RestLib.Utils
     {
         EventWaitHandle workHandle = new ManualResetEvent(false);
         EventWaitHandle stopHandle = new ManualResetEvent(false);
-        Thread worker;
+//todo: array of worker threads, constructor argument for number of workers
+        Thread[] workers;
         readonly object locker = new object();
         Queue<T> tasks = new Queue<T>();
         Action<T> workCallback;
 
         public ProducerConsumerQueue(Action<T> workCallback)
+            :this(workCallback, 1)
+        {
+            
+        }
+
+        public ProducerConsumerQueue(Action<T> workCallback, int numberOfWorkers)
         {
             if (workCallback == null)
             {
                 throw new ArgumentNullException("workCallback");
             }
             this.workCallback = workCallback;
-            worker = new Thread(Work);
-            worker.Start();
+
+            if(numberOfWorkers < 1)
+            {
+                throw new ArgumentException("has to be greater or equal 1", "numberOfWorkers");
+            }
+            workers = new Thread[numberOfWorkers];
+            for (int i = 0; i < workers.Length; i++)
+            {
+                workers[i] = new Thread(Work);
+                workers[i].Start();
+            }
         }
         
         public void EnqueueTask(T task)
@@ -39,7 +55,10 @@ namespace RestLib.Utils
         public void Dispose()
         {
             stopHandle.Set();
-            worker.Join();
+            foreach(Thread worker in workers)
+            {
+                worker.Join();
+            }
             workHandle.Close();
             stopHandle.Close();
         }

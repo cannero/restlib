@@ -52,11 +52,16 @@
     <Reference Include="System.Xml">
       <Name>System.XML</Name>
     </Reference>
+    <Reference Include="System.Core">
+      <Name>System.Core</Name>
+    </Reference>
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="server\Server.cs" />
+    <Compile Include="server\Route.cs" />
     <Compile Include="utils\ProducerConsumerQueue.cs" />
+    <Compile Include="utils\HttpMethod.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

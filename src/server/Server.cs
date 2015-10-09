@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
+using System.Linq;
 using RestLib.Utils;
 
 namespace RestLib.Server
@@ -10,9 +12,8 @@ namespace RestLib.Server
         private readonly HttpListener listener = new HttpListener();
         private readonly Thread listenerThread;
         private ProducerConsumerQueue<HttpListenerContext> contextQueue;
-
-        //todo remove
-        int timesCalled;
+        readonly Dictionary<Route, Action<HttpListenerContext>> resources =
+             new Dictionary<Route, Action<HttpListenerContext>>();
 
         public bool IsListening
         {
@@ -23,7 +24,16 @@ namespace RestLib.Server
         public Server()
         {
             listenerThread = new Thread(HandleRequest);
-            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(WriteOutput);
+            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(ProcessRequest);
+        }
+
+        public void AddListenerMethod(Route route, Action<HttpListenerContext> action)
+        {
+            if(action == null)
+            {
+                throw new ArgumentNullException("action");
+            }
+            resources.Add(route, action);
         }
 
         public void Start()
@@ -56,15 +66,6 @@ namespace RestLib.Server
                 {
                     HttpListenerContext context = listener.GetContext();
                     contextQueue.EnqueueTask(context);
-                    //WriteOutput(context);
-                    
-                    timesCalled++;
-                    if(timesCalled > 5)
-                    {
-                        Stop();
-                        Console.WriteLine("server returning");
-                        return;
-                    }
                 }
                 catch(Exception ex)
                 {
@@ -75,20 +76,14 @@ namespace RestLib.Server
             }
         }
 
-        private void WriteOutput(HttpListenerContext context)
+        private void ProcessRequest(HttpListenerContext context)
         {
-            HttpListenerRequest request = context.Request;
-            // Obtain a response object.
-            HttpListenerResponse response = context.Response;
-            // Construct a response.
-            string responseString = string.Format("<HTML><BODY> Hello world{0}!</BODY></HTML>", timesCalled);
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(responseString);
-            // Get a response stream and write the response to it.
-            response.ContentLength64 = buffer.Length;
-            System.IO.Stream output = response.OutputStream;
-            output.Write(buffer,0,buffer.Length);
-            // You must close the output stream.
-            output.Close();
+            Route route = resources.Keys.Where(rt => rt.Matches(context.Request))
+                                        .FirstOrDefault();
+            if (route != null)
+            {
+                resources[route](context);
+            }
         }
 
         private void LogException(string caller, Exception ex)
