@@ -15,6 +15,7 @@ namespace RestLib.Server
         private ProducerConsumerQueue<HttpListenerContext> contextQueue;
         readonly Dictionary<Route, Action<HttpListenerContext>> resources =
              new Dictionary<Route, Action<HttpListenerContext>>();
+        ResponseWriter responseWriter = new ResponseWriter();
 
         public bool IsListening
         {
@@ -30,7 +31,6 @@ namespace RestLib.Server
             }
             this.config = config;
             listenerThread = new Thread(HandleRequest);
-            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
         }
 
         public void AddResource(Route route, Action<HttpListenerContext> action)
@@ -44,6 +44,7 @@ namespace RestLib.Server
 
         public void Start()
         {
+            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
             listener.Prefixes.Add(config.BaseUrl);
             listener.Start();
             listenerThread.Start();
@@ -95,7 +96,13 @@ namespace RestLib.Server
                 catch(Exception ex)
                 {
                     LogException("ProcessRequest", ex);
+                    responseWriter.WriteInternalServerError(context.Response,
+                                                            ex.ToString());
                 }
+            }
+            else
+            {
+                responseWriter.WriteNotFound(context.Response);
             }
         }
 

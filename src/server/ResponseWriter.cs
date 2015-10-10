@@ -3,6 +3,7 @@ using System.Text;
 using System.Net;
 using System.IO;
 using System.IO.Compression;
+using System.Web;
 
 namespace RestLib.Server
 {
@@ -19,6 +20,7 @@ namespace RestLib.Server
             Encoding = Encoding.UTF8;
         }
         
+        //todo set also contentType
         public void WriteResponse(HttpListenerResponse response, string content)
         {
             byte[] buffer = Encoding.GetBytes(content);
@@ -47,6 +49,17 @@ namespace RestLib.Server
             response.StatusDescription = "Not Found";
             
             WriteResponse(response, "<HTML><BODY><h1>Not Found</h1></BODY></HTML>");
+        }
+
+        public void WriteInternalServerError(HttpListenerResponse response, string exceptionMessage)
+        {
+            response.StatusCode = 500;
+            response.StatusDescription = "Internal Server Error";
+
+            WriteResponse(response, "<HTML><BODY><h1>Internal ServerError</h1>" +
+                          HttpUtility.HtmlEncode(exceptionMessage)
+                          .Replace("\n", "<br>") +
+                          "</BODY></HTML>");
         }
 
         void WriteAndFlushResponse(HttpListenerResponse response, byte[] buffer)

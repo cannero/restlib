@@ -17,6 +17,7 @@ namespace ServerExample
             MyRoute route = new MyRoute();
             server.AddResource(route.FooRoute, route.WriteMore);
             server.AddResource(route.NotFoundRoute, route.WriteNotFound);
+            server.AddResource(route.ExceptionRoute, (c) => { throw new Exception("exception happend");});
             server.AddResource(route.MatchEverythingRoute, route.WriteRawUrl);
             server.Start();
 

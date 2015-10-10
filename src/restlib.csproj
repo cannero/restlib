@@ -55,6 +55,9 @@
     <Reference Include="System.Core">
       <Name>System.Core</Name>
     </Reference>
+    <Reference Include="System.Web">
+      <Name>System.Web</Name>
+    </Reference>
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>

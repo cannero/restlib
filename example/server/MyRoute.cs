@@ -11,6 +11,7 @@ namespace ServerExample
         public readonly Route FooRoute;
         public readonly Route MatchEverythingRoute;
         public readonly Route NotFoundRoute;
+        public readonly Route ExceptionRoute;
 
         readonly ResponseWriter writer = new ResponseWriter();
 
@@ -18,6 +19,7 @@ namespace ServerExample
         {
             FooRoute = new Route("^/foo/.*$", HttpMethod.GET);
             NotFoundRoute = new Route("^/notFound.*$", HttpMethod.GET);
+            ExceptionRoute = new Route("^/ex/.*$", HttpMethod.GET);
             MatchEverythingRoute = new Route("^.*$", HttpMethod.GET);
         }
 

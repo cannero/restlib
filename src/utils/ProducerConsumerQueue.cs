@@ -8,7 +8,6 @@ namespace RestLib.Utils
     {
         EventWaitHandle workHandle = new ManualResetEvent(false);
         EventWaitHandle stopHandle = new ManualResetEvent(false);
-//todo: array of worker threads, constructor argument for number of workers
         Thread[] workers;
         readonly object locker = new object();
         Queue<T> tasks = new Queue<T>();
@@ -89,7 +88,6 @@ namespace RestLib.Utils
                     workHandle.Reset();
                 }
             }
-            Console.WriteLine("PC returning");
         }
     }
 }
