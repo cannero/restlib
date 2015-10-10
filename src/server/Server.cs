@@ -9,6 +9,7 @@ namespace RestLib.Server
 {
     public class Server
     {
+        private readonly ServerConfiguration config;
         private readonly HttpListener listener = new HttpListener();
         private readonly Thread listenerThread;
         private ProducerConsumerQueue<HttpListenerContext> contextQueue;
@@ -21,15 +22,20 @@ namespace RestLib.Server
             private set;
         }
 
-        public Server()
+        public Server(ServerConfiguration config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException("config");
+            }
+            this.config = config;
             listenerThread = new Thread(HandleRequest);
-            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(ProcessRequest);
+            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
         }
 
-        public void AddListenerMethod(Route route, Action<HttpListenerContext> action)
+        public void AddResource(Route route, Action<HttpListenerContext> action)
         {
-            if(action == null)
+            if (action == null)
             {
                 throw new ArgumentNullException("action");
             }
@@ -38,7 +44,7 @@ namespace RestLib.Server
 
         public void Start()
         {
-            listener.Prefixes.Add("http://+:1234/");
+            listener.Prefixes.Add(config.BaseUrl);
             listener.Start();
             listenerThread.Start();
             IsListening = true;
@@ -82,13 +88,20 @@ namespace RestLib.Server
                                         .FirstOrDefault();
             if (route != null)
             {
-                resources[route](context);
+                try
+                {
+                    resources[route](context);
+                }
+                catch(Exception ex)
+                {
+                    LogException("ProcessRequest", ex);
+                }
             }
         }
 
         private void LogException(string caller, Exception ex)
         {
-            Console.WriteLine(caller + ": ");
+            Console.WriteLine("Server::" + caller + ": ");
             Console.WriteLine(ex);
         }
     }

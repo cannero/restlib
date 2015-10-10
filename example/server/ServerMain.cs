@@ -8,10 +8,16 @@ namespace ServerExample
     {
         public static void Main(string[] args)
         {
-            Server server = new Server();
+            var config = new ServerConfiguration
+            {
+                Host = "+"
+            };
+
+            Server server = new Server(config);
             MyRoute route = new MyRoute();
-            server.AddListenerMethod(route.FooRoute, route.WriteMore);
-            server.AddListenerMethod(route.AllMatchingRoute, route.WriteRawUrl);
+            server.AddResource(route.FooRoute, route.WriteMore);
+            server.AddResource(route.NotFoundRoute, route.WriteNotFound);
+            server.AddResource(route.MatchEverythingRoute, route.WriteRawUrl);
             server.Start();
 
             while (server.IsListening)

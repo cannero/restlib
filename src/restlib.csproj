@@ -60,6 +60,8 @@
   <ItemGroup>
     <Compile Include="server\Server.cs" />
     <Compile Include="server\Route.cs" />
+    <Compile Include="server\ServerConfiguration.cs" />
+    <Compile Include="server\ResponseWriter.cs" />
     <Compile Include="utils\ProducerConsumerQueue.cs" />
     <Compile Include="utils\HttpMethod.cs" />
   </ItemGroup>

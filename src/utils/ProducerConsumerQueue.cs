@@ -17,7 +17,6 @@ namespace RestLib.Utils
         public ProducerConsumerQueue(Action<T> workCallback)
             :this(workCallback, 1)
         {
-            
         }
 
         public ProducerConsumerQueue(Action<T> workCallback, int numberOfWorkers)
