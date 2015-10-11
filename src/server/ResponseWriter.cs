@@ -4,6 +4,7 @@ using System.Net;
 using System.IO;
 using System.IO.Compression;
 using System.Web;
+using RestLib.Utils;
 
 namespace RestLib.Server
 {
@@ -21,16 +22,18 @@ namespace RestLib.Server
         }
         
         //todo set also contentType
-        public void WriteResponse(HttpListenerResponse response, string content)
+        public void WriteResponse(HttpListenerResponse response, ResponseData data)
         {
-            byte[] buffer = Encoding.GetBytes(content);
+            response.ContentType = data.ContentType.GetValue();
+            byte[] buffer = Encoding.GetBytes(data.Content);
             WriteAndFlushResponse(response, buffer);
         }
 
-        public void WriteZippedResponse(HttpListenerResponse response, string content)
+        public void WriteZippedResponse(HttpListenerResponse response, ResponseData data)
         {
             response.AddHeader("Content-Encoding", "gzip");
-            byte[] buffer = Encoding.GetBytes(content);
+            response.ContentType = data.ContentType.GetValue();
+            byte[] buffer = Encoding.GetBytes(data.Content);
             using (MemoryStream ms = new MemoryStream())
             {
                 using (GZipStream zip = new GZipStream(ms, CompressionMode.Compress))
@@ -48,7 +51,8 @@ namespace RestLib.Server
             response.StatusCode = 404;
             response.StatusDescription = "Not Found";
             
-            WriteResponse(response, "<HTML><BODY><h1>Not Found</h1></BODY></HTML>");
+            WriteResponse(response, new ResponseData("<HTML><BODY><h1>Not Found</h1></BODY></HTML>",
+                                                     ContentType.TextHtml));
         }
 
         public void WriteInternalServerError(HttpListenerResponse response, string exceptionMessage)
@@ -56,10 +60,11 @@ namespace RestLib.Server
             response.StatusCode = 500;
             response.StatusDescription = "Internal Server Error";
 
-            WriteResponse(response, "<HTML><BODY><h1>Internal ServerError</h1>" +
-                          HttpUtility.HtmlEncode(exceptionMessage)
-                          .Replace("\n", "<br>") +
-                          "</BODY></HTML>");
+            WriteResponse(response, new ResponseData("<HTML><BODY><h1>Internal ServerError</h1>" +
+                                                     HttpUtility.HtmlEncode(exceptionMessage)
+                                                     .Replace("\n", "<br>") +
+                                                     "</BODY></HTML>",
+                                                     ContentType.TextHtml));
         }
 
         void WriteAndFlushResponse(HttpListenerResponse response, byte[] buffer)

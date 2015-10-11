@@ -4,20 +4,20 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{15C4C370-D5AD-468D-BCD4-6BA0CBE2293A}</ProjectGuid>
+    <ProjectGuid>{b6989460-20d8-4c80-999d-be400e0df040}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>restlib</AssemblyName>
+    <AssemblyName>restlibtest</AssemblyName>
     <OutputType>library</OutputType>
-    <RootNamespace>RestLib</RootNamespace>
+    <RootNamespace>RestLibTest</RootNamespace>
     <ApplicationVersion>0.0.0.1</ApplicationVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <BaseIntermediateOutputPath>..\obj\Debug\</BaseIntermediateOutputPath>
-    <OutputPath>..\bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
@@ -28,7 +28,7 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <OutputPath>.\..\bin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
@@ -46,29 +46,19 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
+    <Reference Include="nunit.framework" >
+      <HintPath>lib\nunit.framework.dll</HintPath>
+      <Private>true</Private>
     </Reference>
-    <Reference Include="System.Xml">
-      <Name>System.XML</Name>
+    <Reference Include="restlib.dll" >
+      <HintPath>../bin/Debug/restlib.dll</HintPath>
+      <Private>true</Private>
     </Reference>
-    <Reference Include="System.Core">
-      <Name>System.Core</Name>
-    </Reference>
-    <Reference Include="System.Web">
-      <Name>System.Web</Name>
-    </Reference>
-    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="server\Server.cs" />
-    <Compile Include="server\Route.cs" />
-    <Compile Include="server\ServerConfiguration.cs" />
-    <Compile Include="server\ResponseData.cs" />
-    <Compile Include="server\ResponseWriter.cs" />
-    <Compile Include="server\RequestParser.cs" />
-    <Compile Include="utils\ProducerConsumerQueue.cs" />
-    <Compile Include="utils\RestLibDefines.cs" />
+    <Compile Include="server\RouteTest.cs" />
+    <Compile Include="server\RequestParserTest.cs" />
+    <Compile Include="utils\RestLibDefinesTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

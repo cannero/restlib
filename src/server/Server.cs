@@ -7,6 +7,8 @@ using RestLib.Utils;
 
 namespace RestLib.Server
 {
+    //todo add class which checks if gzip can be used
+    //maybe give route reg ex to callback, how is it done in sinatra?
     public class Server
     {
         private readonly ServerConfiguration config;
@@ -44,11 +46,21 @@ namespace RestLib.Server
 
         public void Start()
         {
-            contextQueue = new ProducerConsumerQueue<HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
-            listener.Prefixes.Add(config.BaseUrl);
-            listener.Start();
-            listenerThread.Start();
-            IsListening = true;
+            try
+            {
+                contextQueue = new ProducerConsumerQueue
+                    <HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
+                listener.Prefixes.Add(config.BaseUrl);
+                IsListening = true;
+                listener.Start();
+                listenerThread.Start();
+            }
+            catch(Exception ex)
+            {
+                IsListening = false;
+                LogException("Start", ex);
+                throw;
+            }
         }
 
         public void Stop()
@@ -85,7 +97,8 @@ namespace RestLib.Server
 
         private void ProcessRequest(HttpListenerContext context)
         {
-            Route route = resources.Keys.Where(rt => rt.Matches(context.Request))
+            Route route = resources.Keys.Where(rt => rt.Matches(context.Request.HttpMethod,
+                                                                context.Request.RawUrl))
                                         .FirstOrDefault();
             if (route != null)
             {

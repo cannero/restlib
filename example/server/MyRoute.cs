@@ -62,7 +62,8 @@ namespace ServerExample
         void WriteResponse(HttpListenerContext context, string responseString)
         {
             HttpListenerResponse response = context.Response;
-            writer.WriteZippedResponse(response, responseString);
+            writer.WriteZippedResponse(response, new ResponseData(responseString,
+                                                                  ContentType.TextHtml));
         }
     }
 }

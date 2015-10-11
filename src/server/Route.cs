@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Text.RegularExpressions;
 using RestLib.Utils;
 
@@ -35,10 +34,10 @@ namespace RestLib.Server
                    this.Path == other.Path;
         }
 
-        public bool Matches(HttpListenerRequest request)
+        public bool Matches(string httpMethod, string rawUrl)
         {
-            return request.HttpMethod.ToUpper() == this.HttpMethod.ToString() &&
-                Regex.IsMatch(request.RawUrl, this.Path, RegexOptions.IgnoreCase);
+            return httpMethod.ToUpper() == this.HttpMethod.ToString() &&
+                Regex.IsMatch(rawUrl, this.Path, RegexOptions.IgnoreCase);
         }
     }
 }
