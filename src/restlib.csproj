@@ -67,6 +67,7 @@
     <Compile Include="server\ResponseData.cs" />
     <Compile Include="server\ResponseWriter.cs" />
     <Compile Include="server\RequestParser.cs" />
+    <Compile Include="server\FileResponder.cs" />
     <Compile Include="utils\ProducerConsumerQueue.cs" />
     <Compile Include="utils\RestLibDefines.cs" />
   </ItemGroup>
