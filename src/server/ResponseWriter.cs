@@ -20,8 +20,13 @@ namespace RestLib.Server
         {
             Encoding = Encoding.UTF8;
         }
+
+        public void AddLastModifiedAndExpires(HttpListenerResponse response, string lastModified, string expires)
+        {
+            response.AddHeader("Last-Modified", lastModified);
+            response.AddHeader("Expires", expires);
+        }
         
-        //todo set also contentType
         public void WriteResponse(HttpListenerResponse response, ResponseData data)
         {
             response.ContentType = data.ContentType.GetValue();
@@ -65,6 +70,12 @@ namespace RestLib.Server
                                                      .Replace("\n", "<br>") +
                                                      "</BODY></HTML>",
                                                      ContentType.TextHtml));
+        }
+
+        public void WriteNotModified(HttpListenerResponse response)
+        {
+            response.StatusCode = (int)HttpStatusCode.NotModified;
+            response.Close();
         }
 
         void WriteAndFlushResponse(HttpListenerResponse response, byte[] buffer)

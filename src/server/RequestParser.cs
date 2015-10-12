@@ -31,5 +31,11 @@ namespace RestLib.Server
 
             return false;
         }
+
+        public static bool LastModifiedSinceEquals(HttpListenerRequest request, string lastModified)
+        {
+            return request.Headers.AllKeys.Contains("If-Modified-Since") &&
+                request.Headers["If-Modified-Since"] == lastModified;
+        }
     }
 }

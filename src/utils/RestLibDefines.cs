@@ -20,6 +20,8 @@ namespace RestLib.Utils
         TextHtml,
         [ContentTypeMetadata(Value = "text/xml")]
         TextXml,
+        [ContentTypeMetadata(Value = "text/css")]
+        TextCss,
         [ContentTypeMetadata(Value = "application/xml")]
         ApplicationXml,
         //default encoding UTF-8
@@ -27,8 +29,7 @@ namespace RestLib.Utils
         ApplicationJson,
         //for JSONP
         [ContentTypeMetadata(Value = "application/javascript")]
-        ApplicationJS
-
+        ApplicationJs
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]

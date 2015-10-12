@@ -10,7 +10,8 @@ namespace ServerExample
         {
             var config = new ServerConfiguration
             {
-                Host = "+"
+                Host = "+",
+                WebRoot = "../server/files/"
             };
 
             Server server = new Server(config);
@@ -19,7 +20,7 @@ namespace ServerExample
             server.AddResource(route.NotFoundRoute, route.WriteNotFound);
             server.AddResource(route.ExceptionRoute, (c) => { throw new Exception("exception happend");});
             server.AddResource(route.HtmlWithCssRoute, route.WriteHtmlWithCss);
-            server.AddResource(route.MatchEverythingRoute, route.WriteRawUrl);
+//            server.AddResource(route.MatchEverythingRoute, route.WriteRawUrl);
             server.Start();
 
             while (server.IsListening)

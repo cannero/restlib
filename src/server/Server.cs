@@ -18,6 +18,7 @@ namespace RestLib.Server
         readonly Dictionary<Route, Action<HttpListenerContext>> resources =
              new Dictionary<Route, Action<HttpListenerContext>>();
         ResponseWriter responseWriter = new ResponseWriter();
+        FileResponder fileResponder;
 
         public bool IsListening
         {
@@ -32,6 +33,7 @@ namespace RestLib.Server
                 throw new ArgumentNullException("config");
             }
             this.config = config;
+            this.fileResponder = new FileResponder(config.WebRoot);
             listenerThread = new Thread(HandleRequest);
         }
 
@@ -97,25 +99,31 @@ namespace RestLib.Server
 
         private void ProcessRequest(HttpListenerContext context)
         {
+            string url = context.Request.RawUrl;
             Route route = resources.Keys.Where(rt => rt.Matches(context.Request.HttpMethod,
-                                                                context.Request.RawUrl))
+                                                                url))
                                         .FirstOrDefault();
-            if (route != null)
+            try
             {
-                try
+                if (route != null)
                 {
                     resources[route](context);
                 }
-                catch(Exception ex)
+                else if (fileResponder.FileExists(url))
                 {
-                    LogException("ProcessRequest", ex);
-                    responseWriter.WriteInternalServerError(context.Response,
-                                                            ex.ToString());
+                    //todo Send or Write
+                    fileResponder.SendFileResponse(context);
+                }
+                else
+                {
+                    responseWriter.WriteNotFound(context.Response);
                 }
             }
-            else
+            catch(Exception ex)
             {
-                responseWriter.WriteNotFound(context.Response);
+                LogException("ProcessRequest", ex);
+                responseWriter.WriteInternalServerError(context.Response,
+                                                        ex.ToString());
             }
         }
 

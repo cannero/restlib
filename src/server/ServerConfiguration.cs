@@ -9,6 +9,7 @@ namespace RestLib.Server
         public string Host { get; set; }
         public int Port { get; set; }
         public int NumWorkerThreads { get; set; }
+        public string WebRoot { get; set; }
 
         public ServerConfiguration()
         {
@@ -16,6 +17,7 @@ namespace RestLib.Server
             Host = "localhost";
             Port = 1234;
             NumWorkerThreads = 1;
+            WebRoot = "";
         }
 
         public string BaseUrl
