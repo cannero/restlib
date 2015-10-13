@@ -9,12 +9,18 @@ namespace RestLib.Server
     {
         readonly bool rootExists = false;
         readonly string root = "";
-        ResponseWriter responseWriter = new ResponseWriter();
+        ResponseWriter responseWriter;
 
-        public FileResponder(string root)
+        public FileResponder(string root, ResponseWriter responseWriter)
         {
             if (!string.IsNullOrEmpty(root))
             {
+                if (responseWriter == null)
+                {
+                    throw new ArgumentNullException("responseWriter");
+                }
+                this.responseWriter = responseWriter;
+
                 root = Path.GetFullPath(root);
                 if (!Directory.Exists(root))
                 {
@@ -35,9 +41,7 @@ namespace RestLib.Server
                 return false;
             }
 
-            url = url.TrimStart('/');
-            string filename = url.Replace('/', Path.DirectorySeparatorChar);
-            string path = Path.Combine(root, filename);
+            string path = GetFullPath(url);
             Console.WriteLine("searching for file " + path);
             return File.Exists(path);
         }
@@ -51,28 +55,81 @@ namespace RestLib.Server
                 return;
             }
 
-            url = url.TrimStart('/');
-            string filename = url.Replace('/', Path.DirectorySeparatorChar);
-            string path = Path.Combine(root, filename);
-
-            DateTime lastWriteTime = File.GetLastWriteTimeUtc(path);
-            string lastModified = lastWriteTime.ToString("R");
-            string expires = lastWriteTime.AddHours(23).ToString("R");
+            FileInfo fileInfo = new FileInfo(GetFullPath(url));
+            string lastModified = fileInfo.LastWriteTime.ToString("R");
 
             if (RequestParser.LastModifiedSinceEquals(context.Request, lastModified))
             {
-                responseWriter.WriteNotModified(context.Response);
-                return;
+                responseWriter.SendNotModified(context.Response);
             }
-
-            string fileContent = "";
-            using(StreamReader reader = new StreamReader(path))
+            else
             {
-                fileContent = reader.ReadToEnd();
+                SendFileContent(context, fileInfo);
             }
+        }
 
+        private string GetFullPath(string url)
+        {
+            url = url.TrimStart('/');
+            string filename = url.Replace('/', Path.DirectorySeparatorChar);
+            string path = Path.Combine(root, filename);
+            return path;
+        }
+
+        private void SendFileContent(HttpListenerContext context, FileInfo fileInfo)
+        {
+            byte[] fileContent = GetContent(fileInfo);
+            ContentType contentType = GetContentType(fileInfo.Extension);
+            string lastModified = fileInfo.LastWriteTime.ToString("R");
+            string expires = fileInfo.LastWriteTime.AddHours(23).ToString("R");
+
+            responseWriter.AddLastModifiedAndExpires(context.Response, lastModified,
+                                                     expires);
+
+            if (RequestParser.GzipCanBeUsed(context.Request) &&
+                fileContent.Length > 1024)
+            {
+                responseWriter.SendZippedResponse(context.Response,
+                                                   new ByteResponseData(fileContent,
+                                                                        contentType));
+            }
+            else
+            {
+                responseWriter.SendResponse(context.Response,
+                                             new ByteResponseData(fileContent,
+                                                                  contentType));
+            }
+        }
+
+        private byte[] GetContent(FileInfo fileInfo)
+        {
+            ContentType contentType = GetContentType(fileInfo.Extension);
+            
+            byte[] fileContent;
+            if(contentType.IsBinary())
+            {
+                using (BinaryReader reader = new BinaryReader(File.Open(fileInfo.FullName,
+                                                                        FileMode.Open,
+                                                                        FileAccess.Read)))
+                {
+                    fileContent = reader.ReadBytes((int)fileInfo.Length);
+                }
+            }
+            else
+            {
+                using (StreamReader reader = new StreamReader(fileInfo.FullName))
+                {
+                    fileContent = responseWriter.Encode(reader.ReadToEnd());
+                }
+            }
+            return fileContent;
+        }
+
+        private ContentType GetContentType(string extension)
+        {
+            extension = extension.ToLower().TrimStart('.');
             ContentType contentType = ContentType.TextPlain;
-            string extension = Path.GetExtension(path).ToLower().TrimStart('.');
+
             if (extension == "css")
             {
                 contentType = ContentType.TextCss;
@@ -81,22 +138,11 @@ namespace RestLib.Server
             {
                 contentType = ContentType.ApplicationJs;
             }
-
-            responseWriter.AddLastModifiedAndExpires(context.Response, lastModified, expires);
-
-            if (RequestParser.GzipCanBeUsed(context.Request) &&
-                fileContent.Length > 1024)
+            else if (extension == "ico")
             {
-                responseWriter.WriteZippedResponse(context.Response,
-                                                   new ResponseData(fileContent,
-                                                                    contentType));
+                contentType = ContentType.ImageXIcon;
             }
-            else
-            {
-                responseWriter.WriteResponse(context.Response,
-                                             new ResponseData(fileContent,
-                                                              contentType));
-            }
+            return contentType;
         }
     }
 }

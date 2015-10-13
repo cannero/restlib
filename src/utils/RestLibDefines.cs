@@ -14,22 +14,25 @@ namespace RestLib.Utils
 
     public enum ContentType
     {
-        [ContentTypeMetadata(Value = "text/plain")]
+        [ContentTypeMetadata(Value = "text/plain", Binary = false)]
         TextPlain,
-        [ContentTypeMetadata(Value = "text/html")]
+        [ContentTypeMetadata(Value = "text/html", Binary = false)]
         TextHtml,
-        [ContentTypeMetadata(Value = "text/xml")]
+        [ContentTypeMetadata(Value = "text/xml", Binary = false)]
         TextXml,
-        [ContentTypeMetadata(Value = "text/css")]
+        [ContentTypeMetadata(Value = "text/css", Binary = false)]
         TextCss,
-        [ContentTypeMetadata(Value = "application/xml")]
+        [ContentTypeMetadata(Value = "application/xml", Binary = false)]
         ApplicationXml,
         //default encoding UTF-8
-        [ContentTypeMetadata(Value = "application/json")]
+        [ContentTypeMetadata(Value = "application/json", Binary = false)]
         ApplicationJson,
         //for JSONP
-        [ContentTypeMetadata(Value = "application/javascript")]
-        ApplicationJs
+        [ContentTypeMetadata(Value = "application/javascript", Binary = false)]
+        ApplicationJs,
+        //because of IE
+        [ContentTypeMetadata(Value = "image/x-icon", Binary = true)]
+        ImageXIcon
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
@@ -38,10 +41,12 @@ namespace RestLib.Utils
         public const string DefaultValue = "text/plain";
         
         public string Value { get; set; }
+        public bool Binary { get; set; }
 
         public ContentTypeMetadata()
         {
             Value = DefaultValue;
+            Binary = false;
         }
     }
 
@@ -70,6 +75,16 @@ namespace RestLib.Utils
                 return md.Value;
             }
             return ContentTypeMetadata.DefaultValue;
+        }
+
+        public static bool IsBinary(this ContentType contentType)
+        {
+            ContentTypeMetadata md = contentType.GetMetadata();
+            if (md != null)
+            {
+                return md.Binary;
+            }
+            return false;
         }
     }
 }

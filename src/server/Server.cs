@@ -33,7 +33,7 @@ namespace RestLib.Server
                 throw new ArgumentNullException("config");
             }
             this.config = config;
-            this.fileResponder = new FileResponder(config.WebRoot);
+            this.fileResponder = new FileResponder(config.WebRoot, responseWriter);
             listenerThread = new Thread(HandleRequest);
         }
 
@@ -116,14 +116,14 @@ namespace RestLib.Server
                 }
                 else
                 {
-                    responseWriter.WriteNotFound(context.Response);
+                    responseWriter.SendNotFound(context.Response);
                 }
             }
             catch(Exception ex)
             {
                 LogException("ProcessRequest", ex);
-                responseWriter.WriteInternalServerError(context.Response,
-                                                        ex.ToString());
+                responseWriter.SendInternalServerError(context.Response,
+                                                       ex.ToString());
             }
         }
 

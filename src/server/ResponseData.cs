@@ -3,18 +3,36 @@ using RestLib.Utils;
 
 namespace RestLib.Server
 {
-    public struct ResponseData
+    public struct StringResponseData
     {
         public readonly string Content;
         public readonly ContentType ContentType;
 
-        public ResponseData(string content)
+        public StringResponseData(string content)
         {
             this.Content = content;
             this.ContentType = ContentType.TextPlain;
         }
 
-        public ResponseData(string content, ContentType contentType)
+        public StringResponseData(string content, ContentType contentType)
+        {
+            this.Content = content;
+            this.ContentType = contentType;
+        }
+    }
+
+    public struct ByteResponseData
+    {
+        public readonly byte[] Content;
+        public readonly ContentType ContentType;
+
+        public ByteResponseData(byte[] content)
+        {
+            this.Content = content;
+            this.ContentType = ContentType.TextPlain;
+        }
+
+        public ByteResponseData(byte[] content, ContentType contentType)
         {
             this.Content = content;
             this.ContentType = contentType;

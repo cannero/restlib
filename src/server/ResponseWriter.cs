@@ -21,24 +21,42 @@ namespace RestLib.Server
             Encoding = Encoding.UTF8;
         }
 
+        public byte[] Encode(string text)
+        {
+            return Encoding.GetBytes(text);
+        }
+
         public void AddLastModifiedAndExpires(HttpListenerResponse response, string lastModified, string expires)
         {
             response.AddHeader("Last-Modified", lastModified);
             response.AddHeader("Expires", expires);
         }
         
-        public void WriteResponse(HttpListenerResponse response, ResponseData data)
+        public void SendResponse(HttpListenerResponse response, StringResponseData data)
+        {
+            SendResponse(response, new ByteResponseData(Encoding.GetBytes(data.Content),
+                                                        data.ContentType));
+ 
+        }
+
+        public void SendResponse(HttpListenerResponse response, ByteResponseData data)
         {
             response.ContentType = data.ContentType.GetValue();
-            byte[] buffer = Encoding.GetBytes(data.Content);
+            byte[] buffer = data.Content;
             WriteAndFlushResponse(response, buffer);
         }
 
-        public void WriteZippedResponse(HttpListenerResponse response, ResponseData data)
+        public void SendZippedResponse(HttpListenerResponse response, StringResponseData data)
+        {
+            SendZippedResponse(response, new ByteResponseData(Encoding.GetBytes(data.Content),
+                                                              data.ContentType));
+        }
+
+        public void SendZippedResponse(HttpListenerResponse response, ByteResponseData data)
         {
             response.AddHeader("Content-Encoding", "gzip");
             response.ContentType = data.ContentType.GetValue();
-            byte[] buffer = Encoding.GetBytes(data.Content);
+            byte[] buffer = data.Content;
             using (MemoryStream ms = new MemoryStream())
             {
                 using (GZipStream zip = new GZipStream(ms, CompressionMode.Compress))
@@ -51,28 +69,28 @@ namespace RestLib.Server
             WriteAndFlushResponse(response, buffer);
         }
 
-        public void WriteNotFound(HttpListenerResponse response)
+        public void SendNotFound(HttpListenerResponse response)
         {
             response.StatusCode = 404;
             response.StatusDescription = "Not Found";
             
-            WriteResponse(response, new ResponseData("<HTML><BODY><h1>Not Found</h1></BODY></HTML>",
-                                                     ContentType.TextHtml));
+            SendResponse(response, new StringResponseData("<HTML><BODY><h1>Not Found</h1></BODY></HTML>",
+                                                           ContentType.TextHtml));
         }
 
-        public void WriteInternalServerError(HttpListenerResponse response, string exceptionMessage)
+        public void SendInternalServerError(HttpListenerResponse response, string exceptionMessage)
         {
             response.StatusCode = 500;
             response.StatusDescription = "Internal Server Error";
 
-            WriteResponse(response, new ResponseData("<HTML><BODY><h1>Internal ServerError</h1>" +
-                                                     HttpUtility.HtmlEncode(exceptionMessage)
-                                                     .Replace("\n", "<br>") +
-                                                     "</BODY></HTML>",
-                                                     ContentType.TextHtml));
+            SendResponse(response, new StringResponseData("<HTML><BODY><h1>Internal ServerError</h1>" +
+                                                          HttpUtility.HtmlEncode(exceptionMessage)
+                                                          .Replace("\n", "<br>") +
+                                                          "</BODY></HTML>",
+                                                          ContentType.TextHtml));
         }
 
-        public void WriteNotModified(HttpListenerResponse response)
+        public void SendNotModified(HttpListenerResponse response)
         {
             response.StatusCode = (int)HttpStatusCode.NotModified;
             response.Close();

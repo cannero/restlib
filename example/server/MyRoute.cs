@@ -79,14 +79,14 @@ namespace ServerExample
         public void WriteNotFound(HttpListenerContext context)
         {
             HttpListenerResponse response = context.Response;
-            writer.WriteNotFound(response);
+            writer.SendNotFound(response);
         }
 
         void WriteResponse(HttpListenerContext context, string responseString)
         {
             HttpListenerResponse response = context.Response;
-            writer.WriteZippedResponse(response, new ResponseData(responseString,
-                                                                  ContentType.TextHtml));
+            writer.SendZippedResponse(response, new StringResponseData(responseString,
+                                                                       ContentType.TextHtml));
         }
     }
 }
