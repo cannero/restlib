@@ -6,7 +6,7 @@ using RestLib.Utils;
 
 namespace ServerExample
 {
-    public class MyRoute
+    public class MyResource
     {
         public readonly Route FooRoute;
         public readonly Route NotFoundRoute;
@@ -16,18 +16,18 @@ namespace ServerExample
 
         readonly ResponseWriter writer = new ResponseWriter();
 
-        public MyRoute()
+        public MyResource()
         {
-            FooRoute = new Route("^/foo/.*$", HttpMethod.GET);
+            FooRoute = new Route("^/foo/(.*)$", HttpMethod.GET);
             NotFoundRoute = new Route("^/notFound.*$", HttpMethod.GET);
             ExceptionRoute = new Route("^/ex/.*$", HttpMethod.GET);
             HtmlWithCssRoute = new Route("^/css/.*$", HttpMethod.GET);
             MatchEverythingRoute = new Route("^.*$", HttpMethod.GET);
         }
 
-        public void WriteMore(HttpListenerContext context)
+        public void WriteMore(ResourceData data)
         {
-            HttpListenerRequest request = context.Request;
+            HttpListenerRequest request = data.HttpListenerContext.Request;
             string responseString = string.Format("<HTML><BODY>RawUrl: {0}<br>Local Endpoint {1}<br>", request.RawUrl, request.LocalEndPoint);
 
             NameValueCollection headers = request.Headers;
@@ -44,8 +44,11 @@ namespace ServerExample
                     }
                 }
             }
+
+            responseString += "<br>matching string: " + data.FirstRouteMatchOrEmpty + "<br>";
+            
             responseString += "</BODY></HTML>";
-            WriteResponse(context, responseString);
+            WriteResponse(data.HttpListenerContext, responseString);
         }
 
         public void WriteRawUrl(HttpListenerContext context)
@@ -56,8 +59,9 @@ namespace ServerExample
             WriteResponse(context, responseString);
         }
 
-        public void WriteHtmlWithCss(HttpListenerContext context)
+        public void WriteHtmlWithCss(ResourceData data)
         {
+            HttpListenerContext context = data.HttpListenerContext;
             Console.WriteLine("WriteHtmlWithCss called with " + context.Request.RawUrl);
             HttpListenerRequest request = context.Request;
             string responseString = "<!DOCTYPE html>" +
@@ -77,9 +81,9 @@ namespace ServerExample
             WriteResponse(context, responseString);
         }
 
-        public void WriteNotFound(HttpListenerContext context)
+        public void WriteNotFound(ResourceData data)
         {
-            HttpListenerResponse response = context.Response;
+            HttpListenerResponse response = data.HttpListenerContext.Response;
             writer.SendNotFound(response);
         }
 
