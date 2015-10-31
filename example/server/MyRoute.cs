@@ -64,10 +64,11 @@ namespace ServerExample
                 "<html>" +
                 "<head>" +
                 "<link rel=\"stylesheet\" href=\"/styles.css\">" +
+                "<script src=\"/setBackgroundColor.js\"></script>" +
                 "</head>" +
                 "<body>" +
                 
-                "<h1>This is a heading</h1>" +
+                "<div id=divH1><h1>This is a heading</h1></div>" +
                 "<p>This is a paragraph.</p>" +
                 
                 "</body>" +

@@ -30,7 +30,7 @@ namespace RestLib.Utils
         //for JSONP
         [ContentTypeMetadata(Value = "application/javascript", Binary = false)]
         ApplicationJs,
-        //because of IE
+        //Image because of IE
         [ContentTypeMetadata(Value = "image/x-icon", Binary = true)]
         ImageXIcon
     }
