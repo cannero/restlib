@@ -61,15 +61,15 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="server\Server.cs" />
-    <Compile Include="server\Route.cs" />
-    <Compile Include="server\ServerConfiguration.cs" />
-    <Compile Include="server\ResponseData.cs" />
-    <Compile Include="server\ResponseWriter.cs" />
-    <Compile Include="server\RequestParser.cs" />
-    <Compile Include="server\FileResponder.cs" />
-    <Compile Include="utils\ProducerConsumerQueue.cs" />
-    <Compile Include="utils\RestLibDefines.cs" />
+    <Compile Include="Server\Server.cs" />
+    <Compile Include="Server\Route.cs" />
+    <Compile Include="Server\ServerConfiguration.cs" />
+    <Compile Include="Server\ResponseData.cs" />
+    <Compile Include="Server\ResponseWriter.cs" />
+    <Compile Include="Server\RequestParser.cs" />
+    <Compile Include="Server\FileResponder.cs" />
+    <Compile Include="Utils\ProducerConsumerQueue.cs" />
+    <Compile Include="Utils\RestLibDefines.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
