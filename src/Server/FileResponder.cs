@@ -24,10 +24,10 @@ namespace RestLib.Server
                 root = Path.GetFullPath(root);
                 if (!Directory.Exists(root))
                 {
-                    Console.WriteLine("creating " + root);
+                    RestLogger.LogInfo("FileResponder: creating directory " + root);
                     Directory.CreateDirectory(root);
                 }
-                Console.WriteLine("using " + root);
+                RestLogger.LogInfo("FileResponder: web root " + root);
                 this.rootExists = true;
                 this.root = root;
             }
@@ -41,8 +41,14 @@ namespace RestLib.Server
                 return false;
             }
 
+            if (url.Contains(".."))
+            {
+                RestLogger.LogWarning("FileResponder::FileExists: request with step back{0}{1}",
+                    Environment.NewLine, url);
+                return false;
+            }
+
             string path = GetFullPath(url);
-            Console.WriteLine("searching for file " + path);
             return File.Exists(path);
         }
 

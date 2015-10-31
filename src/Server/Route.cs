@@ -36,8 +36,36 @@ namespace RestLib.Server
 
         public bool Matches(string httpMethod, string rawUrl)
         {
-            return httpMethod.ToUpper() == this.HttpMethod.ToString() &&
-                Regex.IsMatch(rawUrl, this.Path, RegexOptions.IgnoreCase);
+            this.FirstMatchOrEmpty = string.Empty;
+
+            if (httpMethod.ToUpper() != this.HttpMethod.ToString())
+            {
+                return false;
+            }
+            Match match = Regex.Match(rawUrl, this.Path, RegexOptions.IgnoreCase);
+            if (!match.Success)
+            {
+                return false;
+            }
+            if (match.Groups.Count > 1)
+            {
+                FirstMatchOrEmpty = match.Groups[1].Value;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// filled after Matches with url is called
+        /// </summary>
+        public string FirstMatchOrEmpty
+        {
+            get;
+            private set;
+        }
+
+        public override string ToString()
+        {
+            return "Route: " + HttpMethod + " " + Path;
         }
     }
 }

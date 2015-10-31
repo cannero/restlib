@@ -7,16 +7,15 @@ using RestLib.Utils;
 
 namespace RestLib.Server
 {
-    //todo add class which checks if gzip can be used
-    //maybe give route reg ex to callback, how is it done in sinatra?
+    //todo give route reg ex to callback, how is it done in sinatra?
     public class Server
     {
         private readonly ServerConfiguration config;
         private readonly HttpListener listener = new HttpListener();
         private readonly Thread listenerThread;
         private ProducerConsumerQueue<HttpListenerContext> contextQueue;
-        readonly Dictionary<Route, Action<HttpListenerContext>> resources =
-             new Dictionary<Route, Action<HttpListenerContext>>();
+        readonly Dictionary<Route, Action<ResourceData>> resources =
+             new Dictionary<Route, Action<ResourceData>>();
         ResponseWriter responseWriter = new ResponseWriter();
         FileResponder fileResponder;
 
@@ -37,7 +36,7 @@ namespace RestLib.Server
             listenerThread = new Thread(HandleRequest);
         }
 
-        public void AddResource(Route route, Action<HttpListenerContext> action)
+        public void AddResource(Route route, Action<ResourceData> action)
         {
             if (action == null)
             {
@@ -52,6 +51,7 @@ namespace RestLib.Server
             {
                 contextQueue = new ProducerConsumerQueue
                     <HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
+                RestLogger.LogInfo("Server starting, {0}", config.BaseUrl);
                 listener.Prefixes.Add(config.BaseUrl);
                 IsListening = true;
                 listener.Start();
@@ -107,15 +107,17 @@ namespace RestLib.Server
             {
                 if (route != null)
                 {
-                    resources[route](context);
+                    RestLogger.LogInfo("Server::ProcessRequest: " + route + " found");
+                    resources[route](new ResourceData(context, route.FirstMatchOrEmpty));
                 }
                 else if (fileResponder.FileExists(url))
                 {
-                    //todo Send or Write
+                    RestLogger.LogInfo("Server::ProcessRequest: file {0} found", url);
                     fileResponder.SendFileResponse(context);
                 }
                 else
                 {
+                    RestLogger.LogWarning("Server::ProcessRequest: url {0} not found", url);
                     responseWriter.SendNotFound(context.Response);
                 }
             }
@@ -127,10 +129,9 @@ namespace RestLib.Server
             }
         }
 
-        private void LogException(string caller, Exception ex)
+        private void LogException(string callingFunction, Exception ex)
         {
-            Console.WriteLine("Server::" + caller + ": ");
-            Console.WriteLine(ex);
+            RestLogger.Log("Server::" + callingFunction, ex);
         }
     }
 }

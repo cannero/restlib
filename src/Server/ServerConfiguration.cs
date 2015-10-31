@@ -17,7 +17,7 @@ namespace RestLib.Server
             Host = "localhost";
             Port = 1234;
             NumWorkerThreads = 1;
-            WebRoot = "";
+            WebRoot = ".";
         }
 
         public string BaseUrl
