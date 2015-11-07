@@ -9,12 +9,12 @@ namespace RestLib.Server
     public struct ResourceData
     {
         public readonly HttpListenerContext HttpListenerContext;
-        public readonly string FirstRouteMatchOrEmpty;
+        public readonly Route MatchedRoute;
 
-        public ResourceData(HttpListenerContext context, string match)
+        public ResourceData(HttpListenerContext context, Route route)
         {
             this.HttpListenerContext = context;
-            this.FirstRouteMatchOrEmpty = match;
+            this.MatchedRoute = route;
         }
     }
 }

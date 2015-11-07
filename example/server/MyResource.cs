@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Collections.Specialized;
+using System.Web;
 using RestLib.Server;
 using RestLib.Utils;
 
@@ -18,7 +19,7 @@ namespace ServerExample
 
         public MyResource()
         {
-            FooRoute = new Route("^/foo/(.*)$", HttpMethod.GET);
+            FooRoute = new Route("^/foo/(.*)(?=/\\?).*$", HttpMethod.GET);
             NotFoundRoute = new Route("^/notFound.*$", HttpMethod.GET);
             ExceptionRoute = new Route("^/ex/.*$", HttpMethod.GET);
             HtmlWithCssRoute = new Route("^/css/.*$", HttpMethod.GET);
@@ -45,14 +46,34 @@ namespace ServerExample
                 }
             }
 
-            responseString += "<br>matching string: " + data.FirstRouteMatchOrEmpty + "<br>";
-            
+            responseString += "<br><br>Route:<br>";
+            Route route = data.MatchedRoute;
+            responseString += "<br>matching string: " +
+                HttpUtility.HtmlEncode(route.FirstMatchOrEmpty) + "<br>";
+            responseString += "<br>query string:<br>";
+            if(route.QueryString.Count > 0)
+            {
+                foreach (string key in route.QueryString.AllKeys)
+                {
+                    responseString += HttpUtility.HtmlEncode(key) + ":";
+                    foreach (string value in route.QueryString.GetValues(key))
+                    {
+                        responseString += " " + HttpUtility.HtmlEncode(value);
+                    }
+                    responseString += "<br>";
+                }
+            }
+            else
+            {
+                responseString += "no query string:<br>";
+            }
             responseString += "</BODY></HTML>";
             WriteResponse(data.HttpListenerContext, responseString);
         }
 
-        public void WriteRawUrl(HttpListenerContext context)
+        public void WriteRawUrl(ResourceData data)
         {
+            HttpListenerContext context = data.HttpListenerContext;
             Console.WriteLine("WriteRawUrl called with " + context.Request.RawUrl);
             HttpListenerRequest request = context.Request;
             string responseString = string.Format("<HTML><BODY>RawUrl {0} </BODY></HTML>", request.RawUrl);

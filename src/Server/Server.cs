@@ -7,7 +7,6 @@ using RestLib.Utils;
 
 namespace RestLib.Server
 {
-    //todo give route reg ex to callback, how is it done in sinatra?
     public class Server
     {
         private readonly ServerConfiguration config;
@@ -108,7 +107,7 @@ namespace RestLib.Server
                 if (route != null)
                 {
                     RestLogger.LogInfo("Server::ProcessRequest: " + route + " found");
-                    resources[route](new ResourceData(context, route.FirstMatchOrEmpty));
+                    resources[route](new ResourceData(context, route));
                 }
                 else if (fileResponder.FileExists(url))
                 {

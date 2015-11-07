@@ -28,7 +28,6 @@ namespace RestLib.Client
             this.credentialsOrNull = credentialsOrNull;
         }
 
-        //todo check name
         private static string SanitizeUrl(string url)
         {
             if (string.IsNullOrEmpty(url))
@@ -47,7 +46,7 @@ namespace RestLib.Client
         }
         
         /// <summary>
-        /// all exceptions except WebException have to be handled by user
+        /// todo all exceptions except WebException have to be handled by user
         /// </summary>
         public Response SendRequest(RestRequest request)
         {

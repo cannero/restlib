@@ -12,12 +12,14 @@ namespace RestLib.Client
 {
     public class RestRequest
     {
-        //this string is not encoded and the parameters are not replaced
+        //the resource string is not encoded and the parameters are not replaced
         string resource;
         string data;
         NameValueCollection queryString = new NameValueCollection();
         Dictionary<string, string> parameters = new Dictionary<string, string>();
 
+        //the value has to be a valid url, no escaping is done
+        //only the parameters replaced are escaped
         public string Resource
         {
             get
@@ -25,9 +27,10 @@ namespace RestLib.Client
                 string completeResource = resource;
                 foreach (KeyValuePair<string, string> kvp in parameters)
                 {
-                    completeResource = completeResource.Replace("{" + kvp.Key + "}", kvp.Value);
+                    completeResource = completeResource.Replace("{" + kvp.Key + "}",
+                                                                Uri.EscapeDataString(kvp.Value));
                 }
-                return Uri.EscapeUriString(completeResource);
+                return completeResource;
             }
             set
             {
@@ -104,8 +107,7 @@ namespace RestLib.Client
                 foreach (string key in queryString.AllKeys)
                 {
                     string value = queryString.Get(key);//Get returns a comma separated string of all values
-                    //todo UrlEncode or Uri.EscapeDataString
-                    listOfQuerys.Add(HttpUtility.UrlEncode(key) + "=" + HttpUtility.UrlEncode(value));
+                    listOfQuerys.Add(Uri.EscapeDataString(key) + "=" + Uri.EscapeDataString(value));
                 }
 
                 path += string.Join("&", listOfQuerys.ToArray());
