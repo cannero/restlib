@@ -10,7 +10,7 @@ namespace ServerExample
     {
         public static void Main(string[] args)
         {
-            var config = new ServerConfiguration
+            var config = new RestServerConfiguration
             {
                 Host = "+",
                 WebRoot = string.Format("..{0}..{0}server{0}files{0}", Path.DirectorySeparatorChar)
@@ -18,7 +18,7 @@ namespace ServerExample
 
             SetLoggingEvents();
             
-            Server server = new Server(config);
+            RestServer server = new RestServer(config);
             MyResource resources = new MyResource();
             server.AddResource(resources.FooRoute, resources.WriteMore);
             server.AddResource(resources.NotFoundRoute, resources.WriteNotFound);

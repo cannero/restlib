@@ -2,8 +2,7 @@ using System;
 
 namespace RestLib.Server
 {
-
-    public class ServerConfiguration
+    public class RestServerConfiguration
     {
         public string Protocol { get; set; }
         public string Host { get; set; }
@@ -11,7 +10,7 @@ namespace RestLib.Server
         public int NumWorkerThreads { get; set; }
         public string WebRoot { get; set; }
 
-        public ServerConfiguration()
+        public RestServerConfiguration()
         {
             Protocol = "http";
             Host = "localhost";

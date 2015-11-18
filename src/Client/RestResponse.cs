@@ -9,7 +9,7 @@ using RestLib.Utils;
 
 namespace RestLib.Client
 {
-    public class Response
+    public class RestResponse
     {
         public HttpStatusCode StatusCode
         {
@@ -43,7 +43,7 @@ namespace RestLib.Client
             }
         }
 
-        public Response(HttpWebResponse httpResponse)
+        public RestResponse(HttpWebResponse httpResponse)
         {
             this.ErrorStatus = WebExceptionStatus.Success;
             this.StatusCode = httpResponse.StatusCode;
@@ -51,7 +51,7 @@ namespace RestLib.Client
             this.Content = GetContent(httpResponse);
         }
 
-        public Response(WebException ex)
+        public RestResponse(WebException ex)
         {
             this.ErrorStatus = ex.Status;
             this.CompleteErrorMessage = ex.ToString();

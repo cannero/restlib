@@ -5,12 +5,12 @@ using RestLib.Utils;
 
 namespace RestLib.Server
 {
-    public class Route : IEquatable<Route>
+    public class RestRoute : IEquatable<RestRoute>
     {
         public readonly string Path;
         public readonly HttpMethod HttpMethod;
 
-        public Route(string path, HttpMethod method)
+        public RestRoute(string path, HttpMethod method)
         {
             if(string.IsNullOrEmpty(path))
             {
@@ -21,7 +21,7 @@ namespace RestLib.Server
             this.QueryString = new NameValueCollection();
         }
 
-        public bool Equals(Route other)
+        public bool Equals(RestRoute other)
         {
             if(other == null)
             {
@@ -81,7 +81,7 @@ namespace RestLib.Server
 
         public override string ToString()
         {
-            return "Route: " + HttpMethod + " " + Path;
+            return "RestRoute: " + HttpMethod + " " + Path;
         }
 
         private void GetQueryString(string url)
@@ -101,7 +101,7 @@ namespace RestLib.Server
                 string[] keyAndValues = query.Split('=');
                 if (keyAndValues.Length != 2)
                 {
-                    RestLogger.LogWarning("Route::GetQueryString: {0} does not contain an equal sign", query);
+                    RestLogger.LogWarning("RestRoute::GetQueryString: {0} does not contain an equal sign", query);
                     continue;
                 }
 

@@ -12,7 +12,7 @@ namespace ClientExample
         static void Main(string[] args)
         {
             SetLoggingEvents();
-            Client client = new Client("http://localhost:1234", null);
+            RestClient client = new RestClient("http://localhost:1234", null);
 
             RestRequest request = new RestRequest
             {
@@ -25,7 +25,7 @@ namespace ClientExample
             request.AddQuery("location", "room");
             request.AddQuery("location", "outside");
 
-            Response response = client.SendRequest(request);
+            RestResponse response = client.SendRequest(request);
 
             WriteResponse(response);
 
@@ -50,7 +50,7 @@ namespace ClientExample
             RestLogger.InfoEvent += (info) => Console.WriteLine(info);
         }
 
-        private static void WriteResponse(Response response)
+        private static void WriteResponse(RestResponse response)
         {
             if (response.CallSuccessful)
             {

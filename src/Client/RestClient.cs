@@ -8,7 +8,7 @@ using System.IO;
 
 namespace RestLib.Client
 {
-    public class Client
+    public class RestClient
     {
         string root;
         NetworkCredential credentialsOrNull;
@@ -19,7 +19,7 @@ namespace RestLib.Client
             private set;
         }
         
-        public Client(string url, NetworkCredential credentialsOrNull)
+        public RestClient(string url, NetworkCredential credentialsOrNull)
         {
             this.Cookies = new CookieContainer();
             url = SanitizeUrl(url);
@@ -48,22 +48,22 @@ namespace RestLib.Client
         /// <summary>
         /// todo all exceptions except WebException have to be handled by user
         /// </summary>
-        public Response SendRequest(RestRequest request)
+        public RestResponse SendRequest(RestRequest request)
         {
             string url = root + request.GetResourceAndQuery();
             HttpWebRequest httpRequest = CreateHttpRequest(request, url);
             SetData(request, httpRequest);
 
-            Response response;
+            RestResponse response;
             try
             {
                 HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
-                response = new Response(httpResponse);
+                response = new RestResponse(httpResponse);
                 this.Cookies.Add(httpResponse.Cookies);
             }
             catch (WebException ex)
             {
-                response = new Response(ex);
+                response = new RestResponse(ex);
             }
             return response;
         }

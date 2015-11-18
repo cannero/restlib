@@ -7,14 +7,14 @@ using RestLib.Utils;
 
 namespace RestLib.Server
 {
-    public class Server
+    public class RestServer
     {
-        private readonly ServerConfiguration config;
+        private readonly RestServerConfiguration config;
         private readonly HttpListener listener = new HttpListener();
         private readonly Thread listenerThread;
         private ProducerConsumerQueue<HttpListenerContext> contextQueue;
-        readonly Dictionary<Route, Action<ResourceData>> resources =
-             new Dictionary<Route, Action<ResourceData>>();
+        readonly Dictionary<RestRoute, Action<ResourceData>> resources =
+             new Dictionary<RestRoute, Action<ResourceData>>();
         ResponseWriter responseWriter = new ResponseWriter();
         FileResponder fileResponder;
 
@@ -24,7 +24,7 @@ namespace RestLib.Server
             private set;
         }
 
-        public Server(ServerConfiguration config)
+        public RestServer(RestServerConfiguration config)
         {
             if (config == null)
             {
@@ -35,7 +35,7 @@ namespace RestLib.Server
             listenerThread = new Thread(HandleRequest);
         }
 
-        public void AddResource(Route route, Action<ResourceData> action)
+        public void AddResource(RestRoute route, Action<ResourceData> action)
         {
             if (action == null)
             {
@@ -50,7 +50,7 @@ namespace RestLib.Server
             {
                 contextQueue = new ProducerConsumerQueue
                     <HttpListenerContext>(ProcessRequest, config.NumWorkerThreads);
-                RestLogger.LogInfo("Server starting, {0}", config.BaseUrl);
+                RestLogger.LogInfo("RestServer starting, {0}", config.BaseUrl);
                 listener.Prefixes.Add(config.BaseUrl);
                 IsListening = true;
                 listener.Start();
@@ -99,24 +99,24 @@ namespace RestLib.Server
         private void ProcessRequest(HttpListenerContext context)
         {
             string url = context.Request.RawUrl;
-            Route route = resources.Keys.Where(rt => rt.Matches(context.Request.HttpMethod,
+            RestRoute route = resources.Keys.Where(rt => rt.Matches(context.Request.HttpMethod,
                                                                 url))
                                         .FirstOrDefault();
             try
             {
                 if (route != null)
                 {
-                    RestLogger.LogInfo("Server::ProcessRequest: " + route + " found");
+                    RestLogger.LogInfo("RestServer::ProcessRequest: " + route + " found");
                     resources[route](new ResourceData(context, route));
                 }
                 else if (fileResponder.FileExists(url))
                 {
-                    RestLogger.LogInfo("Server::ProcessRequest: file {0} found", url);
+                    RestLogger.LogInfo("RestServer::ProcessRequest: file {0} found", url);
                     fileResponder.SendFileResponse(context);
                 }
                 else
                 {
-                    RestLogger.LogWarning("Server::ProcessRequest: url {0} not found", url);
+                    RestLogger.LogWarning("RestServer::ProcessRequest: url {0} not found", url);
                     responseWriter.SendNotFound(context.Response);
                 }
             }
@@ -130,7 +130,7 @@ namespace RestLib.Server
 
         private void LogException(string callingFunction, Exception ex)
         {
-            RestLogger.Log("Server::" + callingFunction, ex);
+            RestLogger.Log("RestServer::" + callingFunction, ex);
         }
     }
 }

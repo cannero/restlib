@@ -9,21 +9,21 @@ namespace ServerExample
 {
     public class MyResource
     {
-        public readonly Route FooRoute;
-        public readonly Route NotFoundRoute;
-        public readonly Route ExceptionRoute;
-        public readonly Route HtmlWithCssRoute;
-        public readonly Route MatchEverythingRoute;
+        public readonly RestRoute FooRoute;
+        public readonly RestRoute NotFoundRoute;
+        public readonly RestRoute ExceptionRoute;
+        public readonly RestRoute HtmlWithCssRoute;
+        public readonly RestRoute MatchEverythingRoute;
 
         readonly ResponseWriter writer = new ResponseWriter();
 
         public MyResource()
         {
-            FooRoute = new Route("^/foo/(.*)(?=/\\?).*$", HttpMethod.GET);
-            NotFoundRoute = new Route("^/notFound.*$", HttpMethod.GET);
-            ExceptionRoute = new Route("^/ex/.*$", HttpMethod.GET);
-            HtmlWithCssRoute = new Route("^/css/.*$", HttpMethod.GET);
-            MatchEverythingRoute = new Route("^.*$", HttpMethod.GET);
+            FooRoute = new RestRoute("^/foo/(.*)(?=/\\?).*$", HttpMethod.GET);
+            NotFoundRoute = new RestRoute("^/notFound.*$", HttpMethod.GET);
+            ExceptionRoute = new RestRoute("^/ex/.*$", HttpMethod.GET);
+            HtmlWithCssRoute = new RestRoute("^/css/.*$", HttpMethod.GET);
+            MatchEverythingRoute = new RestRoute("^.*$", HttpMethod.GET);
         }
 
         public void WriteMore(ResourceData data)
@@ -46,8 +46,8 @@ namespace ServerExample
                 }
             }
 
-            responseString += "<br><br>Route:<br>";
-            Route route = data.MatchedRoute;
+            responseString += "<br><br>RestRoute:<br>";
+            RestRoute route = data.MatchedRoute;
             responseString += "<br>matching string: " +
                 HttpUtility.HtmlEncode(route.FirstMatchOrEmpty) + "<br>";
             responseString += "<br>query string:<br>";
