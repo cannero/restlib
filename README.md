@@ -1,0 +1,1 @@
+simple rest server and client, modeled after https://github.com/sukona/Grapevine, for .Net 3.5
